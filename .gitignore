@@ -13,3 +13,6 @@
 
 # Go workspace file
 go.work
+
+# python environment
+env_iotPark/
