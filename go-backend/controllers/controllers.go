@@ -3,27 +3,36 @@ package controllers
 import (
 	"net/http"
 
+	"go-backend/database"
+	"go-backend/models"
+
 	"github.com/gin-gonic/gin"
 )
 
 // Handlers for the endpoints
-func GetItems(c *gin.Context) {
-	// Logic to retrieve items
-	// Respond with JSON
-	c.JSON(http.StatusOK, gin.H{"message": "GET request called"})
+func GetUsers(c *gin.Context) {
+	var usersList []models.User
+	err := database.DB.Select(&usersList, "SELECT * FROM users")
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, usersList)
 }
 
-func CreateItem(c *gin.Context) {
-	// Logic to create a new item
+func CreateUser(c *gin.Context) {
+	// Logic to create a new User
 	c.JSON(http.StatusOK, gin.H{"message": "POST request called"})
 }
 
-func UpdateItem(c *gin.Context) {
-	// Logic to update an item
+func UpdateUser(c *gin.Context) {
+	// Logic to update an User
 	c.JSON(http.StatusOK, gin.H{"message": "PUT request called"})
 }
 
-func DeleteItem(c *gin.Context) {
-	// Logic to delete an item
+func DeleteUser(c *gin.Context) {
+	// Logic to delete an User
 	c.JSON(http.StatusOK, gin.H{"message": "DELETE request called"})
 }
