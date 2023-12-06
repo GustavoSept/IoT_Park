@@ -9,4 +9,4 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./migration/docker-database-initial.sql:/docker-entrypoint-initdb.d/docker-database-initial.sql
+      - ./go-backend/migration/docker-database-initial.sql:/docker-entrypoint-initdb.d/docker-database-initial.sql
