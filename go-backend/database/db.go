@@ -10,7 +10,7 @@ import (
 var DB *sqlx.DB
 
 func ConnectToDatabase() {
-	databaseURL := "host=localhost user=root password=root dbname=root port=5432 sslmode=disable"
+	databaseURL := "host=postgres user=root password=root dbname=root port=5432 sslmode=disable"
 	var err error
 	DB, err = sqlx.Connect("postgres", databaseURL)
 	if err != nil {

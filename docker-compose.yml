@@ -10,3 +10,10 @@ services:
       - "5432:5432"
     volumes:
       - ./go-backend/migration/docker-database-initial.sql:/docker-entrypoint-initdb.d/docker-database-initial.sql
+
+  go-backend:
+    build: ./go-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres

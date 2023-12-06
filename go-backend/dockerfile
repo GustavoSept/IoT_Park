@@ -1,0 +1,9 @@
+FROM alpine:latest
+
+WORKDIR /root/
+
+# Copy the pre-compiled binary file from your local machine
+COPY ./app .
+
+# Command to run your application
+CMD ["./app"]
