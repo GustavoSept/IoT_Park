@@ -1,4 +1,4 @@
-from frontend.iotPark import app
+from iotPark import app
 from flask import render_template
 
 @app.route('/')

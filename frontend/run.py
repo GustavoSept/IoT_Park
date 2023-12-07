@@ -1,4 +1,4 @@
-from frontend.iotPark import app
+from iotPark import app
 
 if __name__ == '__main__':
     app.run(debug=True)
