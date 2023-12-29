@@ -10,7 +10,19 @@ import (
 )
 
 // Handlers for the endpoints
-func GetUsers(c *gin.Context) {
+func GetAllUsers(c *gin.Context) {
+	var usersList []models.User
+	err := database.DB.Select(&usersList, "SELECT * FROM users")
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, usersList)
+}
+
+func GetUsers_fromPL(c *gin.Context) {
 	var usersList []models.User
 	err := database.DB.Select(&usersList, "SELECT * FROM users")
 

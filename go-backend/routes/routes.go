@@ -10,8 +10,8 @@ func HandleRequest() {
 	router := gin.Default()
 
 	// Define routes
-	router.GET("/users", controllers.GetUsers)
-	router.GET("/", controllers.GetUsers)
+	router.GET("/api/get_all_users", controllers.GetAllUsers)
+	router.GET("/api/parkinglot=:id", controllers.GetAllUsers)
 	// router.POST("/users", controllers.CreateUser)
 	// router.PUT("/users/:id", controllers.UpdateUser)
 	// router.DELETE("/users/:id", controllers.DeleteUser)
