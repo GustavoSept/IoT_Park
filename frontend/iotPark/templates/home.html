@@ -27,5 +27,46 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        <div class="mt-3">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">Create User</button>
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#removeUserModal">Remove User</button>
+        </div>
+
+        <br>
+
+        <h2>Tabela de Estacionamentos</h2>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>CEP</th>
+                    <th>Proprietário</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pLot in parking_lots %}
+                <tr>
+                    <td>{{ pLot.id }}</td>
+                    <td>{{ pLot.cep }}</td>
+                    <td>{{ pLot.name }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="mt-3">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createParkingLotModal">Create Parking Lot</button>
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#removeParkingLotModal">Remove Parking Lot</button>
+        </div>
+
+        {% include 'modals/create_user_modal.html' %}
+
+        {% include 'modals/create_parking_lot_modal.html' %}
+
+        {% include 'modals/remove_user_modal.html' %}
+
+        {% include 'modals/remove_parking_lot_modal.html' %}
+
     </div>
 {% endblock %}

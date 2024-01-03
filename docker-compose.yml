@@ -3,13 +3,16 @@ services:
   postgres:
     image: "postgres"
     environment:
+      - INIT_DB=true
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
-      - POSTGRES_DB=root      
+      - POSTGRES_DB=root
     ports:
       - "5432:5432"
     volumes:
-      - ./go-backend/migration/docker-database-initial.sql:/docker-entrypoint-initdb.d/docker-database-initial.sql
+      - ./go-backend/migration/docker-database-initial.sql:/docker-entrypoint-initdb.d/01-initial.sql
+      - ./go-backend/migration/docker-database-inserts.sql:/docker-entrypoint-initdb.d/02-inserts.sql
+      - postgres_data:/var/lib/postgresql/data
 
   go-backend:
     build: ./go-backend
@@ -24,3 +27,11 @@ services:
       - "5000:5000"
     depends_on:
       - go-backend
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/gustsept/iot_park/data_db
+      o: bind
