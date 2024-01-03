@@ -11,4 +11,13 @@ type User struct {
 	Office_Level string    `json:"office_level"`
 }
 
+type ParkingLot struct {
+	ID         uuid.UUID `db:"id"`
+	AddrStreet string    `db:"addr_street"`
+	AddrNumber int       `db:"addr_number"`
+	CEP        string    `db:"cep"`
+	OwnerID    uuid.UUID `db:"owner_id"`
+}
+
 var Users []User
+var ParkingLots []ParkingLot
