@@ -12,11 +12,11 @@ type User struct {
 }
 
 type ParkingLot struct {
-	ID         uuid.UUID `db:"id"`
-	AddrStreet string    `db:"addr_street"`
-	AddrNumber int       `db:"addr_number"`
-	CEP        string    `db:"cep"`
-	OwnerID    uuid.UUID `db:"owner_id"`
+	ID         uuid.UUID `db:"id" form:"id"`
+	AddrStreet string    `db:"addr_street" form:"addr_street"`
+	AddrNumber int       `db:"addr_number" form:"addr_number"`
+	CEP        string    `db:"cep" form:"cep"`
+	OwnerID    uuid.UUID `db:"owner_id" form:"owner_id"`
 }
 
 var Users []User
