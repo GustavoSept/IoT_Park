@@ -11,7 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - ./go-backend/migration/docker-database-initial.sql:/docker-entrypoint-initdb.d/01-initial.sql
-      #- ./go-backend/migration/docker-database-inserts.sql:/docker-entrypoint-initdb.d/02-inserts.sql
+      - ./go-backend/migration/docker-database-inserts.sql:/docker-entrypoint-initdb.d/02-inserts.sql
       - postgres_data:/var/lib/postgresql/data
 
   go-backend:
