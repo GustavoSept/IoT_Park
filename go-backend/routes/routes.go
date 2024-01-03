@@ -18,8 +18,8 @@ func HandleRequest() {
 
 	// Define routes
 	router.GET("/api/get_all_users", controllers.GetAllUsers)
-	router.GET("/api/parkinglot=:id", controllers.GetUsers_fromPL)
-	router.POST("/api/user", controllers.CreateUser)
+	router.GET("/api/get_all_pLots", controllers.GetAllParkingLots)
+	router.POST("/api/create-user", controllers.CreateUser)
 	router.POST("/api/create-parking-lot", controllers.CreateParkingLot)
 	// router.PUT("/users/:id", controllers.UpdateUser)
 	// router.DELETE("/users/:id", controllers.DeleteUser)

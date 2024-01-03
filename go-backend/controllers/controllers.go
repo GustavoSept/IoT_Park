@@ -23,16 +23,26 @@ func GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, usersList)
 }
 
-func GetUsers_fromPL(c *gin.Context) {
-	var usersList []models.User
-	err := database.DB.Select(&usersList, "SELECT * FROM users")
+func GetAllParkingLots(c *gin.Context) {
+	var pLotsWithOwners []struct {
+		ID   uuid.UUID `db:"id" json:"id"`
+		CEP  string    `db:"cep" json:"cep"`
+		Name string    `db:"name" json:"name"`
+	}
 
+	query := `
+    SELECT pl.id, pl.cep, u.first_name || ' ' || u.last_name AS name
+    FROM parking_lots pl
+    JOIN users u ON pl.owner_id = u.id
+    `
+
+	err := database.DB.Select(&pLotsWithOwners, query)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, usersList)
+	c.JSON(http.StatusOK, pLotsWithOwners)
 }
 
 func CreateUser(c *gin.Context) {
