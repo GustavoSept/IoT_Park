@@ -1,6 +1,7 @@
 from iotPark import app
 from flask import render_template
 import requests
+import logging
 
 @app.route('/')
 def pg_home():
@@ -17,5 +18,5 @@ def pg_home():
         return render_template('home.html', users=users, parking_lots=parking_lots)
 
     except requests.exceptions.RequestException as e:
-        print(f"Error connecting to backend: {e}")
+        logging.error(f"Error connecting to backend: {e}")
         return render_template('home.html', users=[], parking_lots=[])
