@@ -45,11 +45,11 @@
                 </tr>
             </thead>
             <tbody>
-                {% for pLot in parkingLots %}
+                {% for pLot in parking_lots %}
                 <tr>
                     <td>{{ pLot.id }}</td>
                     <td>{{ pLot.cep }}</td>
-                    <td>{{ pLot.owner_id }}</td>
+                    <td>{{ pLot.name }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
