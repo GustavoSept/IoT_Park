@@ -54,6 +54,12 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
+	// Validate newUser
+	if err := models.Validate.Struct(newUser); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	// Use newUser to insert into db
 	_, err := database.DB.NamedExec(
 		`INSERT INTO users (first_name, last_name, office_level)
