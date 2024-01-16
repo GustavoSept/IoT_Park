@@ -37,7 +37,13 @@ type ParkingLot struct {
 	AddrStreet string    `db:"addr_street" form:"addr_street" json:"addr_street" validate:"required,onlyNames,max=80"`
 	AddrNumber int       `db:"addr_number" form:"addr_number" json:"addr_number" validate:"required,numeric,min=0,max=32767"`
 	CEP        string    `db:"cep" form:"cep" json:"cep" validate:"required"`
-	OwnerID    uuid.UUID `db:"owner_id" form:"owner_id" json:"owner_id" validate:"required"`
+	OwnerID    uuid.UUID `db:"owner_id" form:"owner_id" json:"owner_id"`
+}
+
+// This struct is a sub-set of User, but when checking only an owner name
+type Owner_onlyName struct {
+	First_Name string `json:"owner_first_name" form:"owner_first_name" validate:"required,onlyNames,max=20"`
+	Last_Name  string `json:"owner_last_name" form:"owner_last_name" validate:"required,onlyNames,max=60"`
 }
 
 var Users []User
