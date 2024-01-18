@@ -2,15 +2,21 @@ CREATE TYPE user_office_level AS ENUM ('operador', 'lavador', 'vendedor', 'dono'
 
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) UNIQUE NOT NULL,
     first_name VARCHAR(20) NOT NULL,
     last_name VARCHAR(60) NOT NULL,
     office_level user_office_level NOT NULL
 );
 
 CREATE INDEX idx_first_name ON users(first_name);
-CREATE INDEX idx_last_name ON users(last_name);
+CREATE INDEX idx_email ON users(email);
+CREATE INDEX idx_last_name ON users(last_name); -- exclude, if performance becomes an issue
 
-
+CREATE TABLE user_passwords (
+    user_id UUID PRIMARY KEY REFERENCES users(id),
+    password_hash VARCHAR(255) NOT NULL,
+    salt VARCHAR(255) NOT NULL
+);
 -- ---------------------------------------------------
 
 CREATE TABLE parking_lots (
