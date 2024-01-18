@@ -76,8 +76,6 @@ func CreateParkingLot(c *gin.Context) {
 	var newParkingLot models.ParkingLot
 	var owner models.Owner_onlyName
 
-	fmt.Println("Initiating CreateParkingLot()...")
-
 	if err := c.Bind(&newParkingLot); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Couldn't bind parkinglot": err.Error()})
 		return
@@ -88,22 +86,18 @@ func CreateParkingLot(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("Do we even exit the bind? Validating now...")
-
 	// Validate Data
+
 	if err := models.Validate.Struct(newParkingLot); err != nil {
-		fmt.Println("Validating newParkingLot...")
 		c.JSON(http.StatusBadRequest, gin.H{"Invalid Parking Lot Data": err.Error()})
 		return
 	}
-	fmt.Println("Validated newParkingLot!")
+
 	if err := models.Validate.Struct(owner); err != nil {
-		fmt.Println("Validating owner...")
 		c.JSON(http.StatusBadRequest, gin.H{"Invalid Owner Data": err.Error()})
 		return
 	}
 
-	fmt.Println("Validated owner!")
 	// Check if user exists and is an owner
 	var user models.User
 	err := database.DB.Get(&user, `SELECT * FROM users WHERE first_name = $1 AND last_name = $2 LIMIT 1`, owner.First_Name, owner.Last_Name)
