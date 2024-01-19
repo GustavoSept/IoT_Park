@@ -9,29 +9,29 @@
               <form hx-post="http://localhost:8080/api/create-parking-lot" method="post">
                   <div class="mb-3">
                       <label for="addrStreet" class="form-label">Endereço</label>
-                      <input type="text" class="form-control" id="addrStreet" name="addr_street" required>
+                      <input type="text" class="form-control" id="addrStreet" name="pl_adstr" required>
                   </div>
                   <div class="mb-3">
                       <label for="addrNumber" class="form-label">Número</label>
-                      <input type="number" class="form-control" id="addrNumber" name="addr_number" required>
+                      <input type="number" class="form-control" id="addrNumber" name="pl_adnum" required>
                   </div>
                   <div class="mb-3">
                     <label for="cep" class="form-label">CEP</label>
-                    <input type="text" class="form-control" id="cep" name="cep" 
+                    <input type="text" class="form-control" id="cep" name="pl_cep" 
                            oninput="formatCep(this)"
                            pattern="\d{5}-\d{3}" 
                            maxlength="9"
                            placeholder="00000-000" 
                            title="Formato do CEP: 00000-000" 
                            required>
-                  </div>             
+                  </div>
                   <div class="mb-3">
                     <label for="ownerFirstName" class="form-label">Nome do Proprietário (Primeiro Nome)</label>
-                    <input type="text" class="form-control" id="ownerFirstName" name="owner_first_name" required>
+                    <input type="text" class="form-control" id="ownerFirstName" name="owner_f_name" required>
                   </div>
                   <div class="mb-3">
                       <label for="ownerLastName" class="form-label">Nome do Proprietário (Sobrenome)</label>
-                      <input type="text" class="form-control" id="ownerLastName" name="owner_last_name" required>
+                      <input type="text" class="form-control" id="ownerLastName" name="owner_l_name" required>
                   </div>                
                   <button type="submit" class="btn btn-primary">Criar</button>
                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

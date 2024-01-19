@@ -17,12 +17,12 @@
                 </tr>
             </thead>
             <tbody>
-                {% for user in users %}
+                {% for u in users %}
                 <tr>
-                    <td>{{ user.id }}</td>
-                    <td>{{ user.first_name }}</td>
-                    <td>{{ user.last_name }}</td>
-                    <td>{{ user.office_level }}</td>
+                    <td>{{ u.user_id }}</td>
+                    <td>{{ u.user_f_name }}</td>
+                    <td>{{ u.user_l_name }}</td>
+                    <td>{{ u.user_oflvl }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
