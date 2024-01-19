@@ -26,17 +26,25 @@ func validation_names(fl validator.FieldLevel) bool {
 }
 
 type User struct {
-	ID           uuid.UUID `json:"id"`
-	First_Name   string    `json:"first_name" validate:"required,onlyNames,max=20"`
-	Last_Name    string    `json:"last_name" validate:"required,onlyNames,max=60"`
-	Office_Level string    `json:"office_level" validate:"required,oneof=operador lavador vendedor dono gerente"`
+	ID           uuid.UUID `form:"user_id"`
+	First_Name   string    `form:"user_f_name" validate:"required,onlyNames,max=20"`
+	Last_Name    string    `form:"user_l_name" validate:"required,onlyNames,max=60"`
+	Office_Level string    `form:"user_oflvl" validate:"required,oneof=operador lavador vendedor dono gerente"`
+}
+
+type User_Auth struct {
+	UserID       uuid.UUID `form:"uAuth_user_id"`
+	Email        string    `form:"uAuth_email" validate:"required,email, max=127"`
+	PasswordHash string    `validate:"required, max=255"`
+	Salt         []byte    `validate:"required, max=255"`
 }
 
 type ParkingLot struct {
-	ID         uuid.UUID `db:"id" form:"id" json:"id"`
-	AddrStreet string    `db:"addr_street" form:"addr_street" json:"addr_street" validate:"required,onlyNames,max=80"`
-	AddrNumber int       `db:"addr_number" form:"addr_number" json:"addr_number" validate:"required,numeric,min=0,max=32767"`
-	CEP        string    `db:"cep" form:"cep" json:"cep" validate:"required"`
+	ID         uuid.UUID `db:"id" form:"pl_id" json:"pl_id"`
+	PLot_Name  string    `db:"pl_name" form:"pl_name" json:"pl_name"`
+	AddrStreet string    `db:"addr_street" form:"pl_adstr" json:"pl_adstr" validate:"required,onlyNames,max=80"`
+	AddrNumber int       `db:"addr_number" form:"pl_adnum" json:"pl_adnum" validate:"required,numeric,min=0,max=32767"`
+	CEP        string    `db:"cep" form:"pl_cep" json:"cep" validate:"required"`
 	OwnerID    uuid.UUID `db:"owner_id" form:"owner_id" json:"owner_id"`
 }
 
