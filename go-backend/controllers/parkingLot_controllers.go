@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"go-backend/database"
@@ -10,18 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
-
-func GetAllUsers(c *gin.Context) {
-	var usersList []models.User
-	err := database.DB.Select(&usersList, "SELECT * FROM users")
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, usersList)
-}
 
 func GetAllParkingLots(c *gin.Context) {
 	var pLotsWithOwners []struct {
@@ -45,43 +32,16 @@ func GetAllParkingLots(c *gin.Context) {
 	c.JSON(http.StatusOK, pLotsWithOwners)
 }
 
-func CreateUser(c *gin.Context) {
-	var newUser models.User
-
-	// Attempt to parse JSON request body into newUser model
-	if err := c.BindJSON(&newUser); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Validate newUser
-	if err := models.Validate.Struct(newUser); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Use newUser to insert into db
-	_, err := database.DB.NamedExec(
-		`INSERT INTO users (first_name, last_name, office_level)
-		VALUES (:first_name, :last_name, :office_level)`, &newUser)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, newUser)
-}
-
 func CreateParkingLot(c *gin.Context) {
 	var newParkingLot models.ParkingLot
 	var owner models.Owner_onlyName
 
-	if err := c.Bind(&newParkingLot); err != nil {
+	if err := c.ShouldBind(&newParkingLot); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Couldn't bind parkinglot": err.Error()})
 		return
 	}
 
-	if err := c.Bind(&owner); err != nil {
+	if err := c.ShouldBind(&owner); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Couldn't bind owner": err.Error()})
 		return
 	}
@@ -114,14 +74,6 @@ func CreateParkingLot(c *gin.Context) {
 	// Generate UUID for parking lot
 	newParkingLot.ID = uuid.New()
 
-	fmt.Printf("\nNew Parking Lot:\n")
-	fmt.Printf("ID:%v, AddrStreet:%v, AddrNumber:%v, CEP:%v\n",
-		newParkingLot.ID, newParkingLot.AddrStreet, newParkingLot.AddrNumber, newParkingLot.CEP)
-
-	fmt.Printf("\nUser (Owner):\n")
-	fmt.Printf("ID:%v, First Name:%v, Last Name:%v\n",
-		user.ID, user.First_Name, user.Last_Name)
-
 	// Create parking lot
 	newParkingLot.OwnerID = user.ID
 	_, err = database.DB.NamedExec(
@@ -133,14 +85,4 @@ func CreateParkingLot(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, newParkingLot)
-}
-
-func UpdateUser(c *gin.Context) {
-	// Logic to update an User
-	c.JSON(http.StatusOK, gin.H{"message": "PUT request called"})
-}
-
-func DeleteUser(c *gin.Context) {
-	// Logic to delete an User
-	c.JSON(http.StatusOK, gin.H{"message": "DELETE request called"})
 }
