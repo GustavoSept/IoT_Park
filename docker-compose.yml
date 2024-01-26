@@ -33,5 +33,5 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: /home/gustsept/iot_park/data_db
+      device: ./data_db
       o: bind
