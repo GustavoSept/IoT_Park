@@ -27,6 +27,18 @@ func GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, usersList)
 }
 
+func GetAllUsersAuth(c *gin.Context) {
+	var usersAuthList []models.User_Auth
+	err := database.DB.Select(&usersAuthList, "SELECT * FROM users_authentication")
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, usersAuthList)
+}
+
 func CreateUser(c *gin.Context) {
 	var newUser models.User
 	var newUserAuth models.User_Auth

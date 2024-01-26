@@ -15,7 +15,6 @@ func TestGenerateSalt(t *testing.T) {
 	salt, err := GenerateSalt(local_SALT_SIZE)
 	assert.NoError(t, err)
 	assert.Len(t, salt, local_SALT_SIZE, "Salt should be of the correct length")
-	fmt.Printf("\nTestGenerateSalt's Salt: %v\n", salt)
 
 	salt2, err := GenerateSalt(local_SALT_SIZE)
 	assert.NoError(t, err)
