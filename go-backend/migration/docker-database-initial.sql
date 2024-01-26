@@ -1,33 +1,42 @@
 CREATE TYPE user_office_level AS ENUM ('operador', 'lavador', 'vendedor', 'dono', 'gerente');
 
 CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(255) UNIQUE NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),    
     first_name VARCHAR(20) NOT NULL,
     last_name VARCHAR(60) NOT NULL,
     office_level user_office_level NOT NULL
 );
 
 CREATE INDEX idx_first_name ON users(first_name);
-CREATE INDEX idx_email ON users(email);
 CREATE INDEX idx_last_name ON users(last_name); -- exclude, if performance becomes an issue
 
-CREATE TABLE user_passwords (
+-- ---------------------------------------------------
+
+CREATE TABLE users_authentication (
     user_id UUID PRIMARY KEY REFERENCES users(id),
-    password_hash VARCHAR(255) NOT NULL,
-    salt VARCHAR(255) NOT NULL
+    email VARCHAR(127) UNIQUE NOT NULL,
+    password_hash CHAR(44) NOT NULL,
+    salt CHAR(32) NOT NULL
 );
+
+CREATE INDEX idx_email ON users_authentication(email);
+
 -- ---------------------------------------------------
 
 CREATE TABLE parking_lots (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    pl_name VARCHAR(30) NOT NULL,
     addr_street VARCHAR(80) NOT NULL,
     addr_number SMALLINT NOT NULL,
-    cep VARCHAR(9) NOT NULL,
-    owner_id UUID REFERENCES users(id) NOT NULL
+    cep CHAR(9) NOT NULL,
+    owner_id UUID REFERENCES users(id) NOT NULL,
+
+    UNIQUE (pl_name, addr_street, addr_number, owner_id)
 );
 
 CREATE INDEX idx_owner_id ON parking_lots(owner_id);
+CREATE INDEX idx_cep ON parking_lots(cep);
+
 -- ---------------------------------------------------
 
 -- Stores relations of all parking lots to users that are not of type 'dono'
@@ -51,7 +60,7 @@ CREATE TABLE cars (
     model car_model NOT NULL,
     color car_color,
     brand car_brand,
-    license_plate VARCHAR(7) NOT NULL UNIQUE
+    license_plate CHAR(7) NOT NULL UNIQUE
 );
 
 CREATE INDEX idx_license_plate ON cars(license_plate);
