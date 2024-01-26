@@ -59,6 +59,7 @@ func runDBInitializationScripts(db *sqlx.DB) error {
 	return nil
 }
 
+// Executes custom .sql scripts, query by query
 func executeSQLFile(db *sqlx.DB, filePath string) error {
 	log.Printf("Executing SQL script: %s\n", filePath)
 
