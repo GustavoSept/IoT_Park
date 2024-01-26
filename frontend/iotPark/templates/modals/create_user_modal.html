@@ -1,28 +1,55 @@
-<!-- Create User Modal -->
 <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="createUserModalLabel">Create User</h5>
+          <h5 class="modal-title" id="createUserModalLabel">Criar Usuário</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form>
+          <form hx-post="http://localhost:8080/api/create-user" method="post">
             <div class="mb-3">
-              <label for="firstName" class="form-label">First Name</label>
-              <input type="text" class="form-control" id="firstName" name="first_name">
+              <label for="user_f_name" class="form-label">Nome</label>
+              <input type="text" class="form-control" id="firstName" name="user_f_name">
             </div>
             <div class="mb-3">
-              <label for="lastName" class="form-label">Last Name</label>
-              <input type="text" class="form-control" id="lastName" name="last_name">
+              <label for="user_l_name" class="form-label">Sobrenome</label>
+              <input type="text" class="form-control" id="lastName" name="user_l_name">
             </div>
             <div class="mb-3">
-              <label for="officeLevel" class="form-label">Office Level</label>
-              <input type="text" class="form-control" id="officeLevel" name="office_level">
+              <label for="u_auth_email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="uAuthEmail" name="u_auth_email" required>
+            </div>            
+            <div class="mb-3">
+              <label for="raw_password" class="form-label">Senha</label>
+              <input type="password" class="form-control" id="user_password" name="raw_password">
+            </div>            
+            <div class="mb-3">
+              <label for="user_oflvl" class="form-label">Cargo</label>
+              <select class="form-control" id="officeLevel" name="user_oflvl" required>
+                <option value="">Choose...</option>
+                <option value="operador">Operador</option>
+                <option value="lavador">Lavador</option>
+                <option value="vendedor">Vendedor</option>
+                <option value="dono">Dono</option>
+                <option value="gerente">Gerente</option>
+              </select>
+            </div>
+
+            <div>
+              <h5>Estacionamento Atribuído</h5>
+              <p>Caso seja um funcionário, insira as informações do Estacionamento em irá trabalhar</p>
             </div>
             <div class="mb-3">
-              <label for="associatedPl" class="form-label">Associated Parking Lot</label>
-              <input type="text" class="form-control" id="associatedPl" name="associated_pl">
+              <label for="pl_name" class="form-label">Nome do Estacionamento</label>
+              <input type="text" class="form-control" id="pl_name" name="pl_name">
+            </div>
+            <div class="mb-3">
+              <label for="pl_adstr" class="form-label">Endereço</label>
+              <input type="text" class="form-control" id="pl_adstr" name="pl_adstr">
+            </div>
+            <div class="mb-3">
+              <label for="pl_adnum" class="form-label">Nº</label>
+              <input type="number" class="form-control" id="pl_adnum" name="pl_adnum">
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
