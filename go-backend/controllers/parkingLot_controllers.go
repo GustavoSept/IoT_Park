@@ -12,13 +12,14 @@ import (
 
 func GetAllParkingLots(c *gin.Context) {
 	var pLotsWithOwners []struct {
-		ID   uuid.UUID `db:"id" json:"id"`
-		CEP  string    `db:"cep" json:"cep"`
-		Name string    `db:"name" json:"name"`
+		ID        uuid.UUID `db:"id" json:"id"`
+		PLot_Name string    `db:"pl_name" json:"pl_name"`
+		CEP       string    `db:"cep" json:"cep"`
+		OwnerName string    `db:"name" json:"name"`
 	}
 
 	query := `
-    SELECT pl.id, pl.cep, u.first_name || ' ' || u.last_name AS name
+    SELECT pl.id, pl.pl_name, pl.cep, u.first_name || ' ' || u.last_name AS name
     FROM parking_lots pl
     JOIN users u ON pl.owner_id = u.id
     `
@@ -77,8 +78,8 @@ func CreateParkingLot(c *gin.Context) {
 	// Create parking lot
 	newParkingLot.OwnerID = user.ID
 	_, err = database.DB.NamedExec(
-		`INSERT INTO parking_lots (id, addr_street, addr_number, cep, owner_id) `+
-			`VALUES (:id, :addr_street, :addr_number, :cep, :owner_id)`, &newParkingLot)
+		`INSERT INTO parking_lots (id, pl_name, addr_street, addr_number, cep, owner_id) `+
+			`VALUES (:id, :pl_name, :addr_street, :addr_number, :cep, :owner_id)`, &newParkingLot)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"Couldn't insert into parking_lots": err.Error()})
 		return
