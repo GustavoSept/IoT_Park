@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/hex"
 	"net/http"
 
 	"go-backend/database"
@@ -67,6 +68,22 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
+	// ------------------------ Check parkingLotID
+	// If user is not an owner, and there's no parkingLotID, we can't create the user
+	// Owner users can be created without being immediately associated with a parkingLotID
+	plID, pl_exists := c.Get("parkingLotID")
+	if !pl_exists && newUser.Office_Level != "dono" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Can't create non-owner user without a parking lot"})
+		return
+	}
+
+	// Start new transaction
+	tx, err := database.DB.Beginx()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	// Generate a UUID
 	newUser.ID = uuid.New()
 	newUserAuth.UserID = newUser.ID
@@ -81,22 +98,56 @@ func CreateUser(c *gin.Context) {
 	// Hash Password
 	hashedPass, err = helpers.HashPassword(rawPassword, salt)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"Couldn't hash password": err.Error()})
 		return
 	}
 
+	// Insert newUser into users table
+	_, err = tx.NamedExec(
+		`INSERT INTO users (id, first_name, last_name, office_level)
+						VALUES (:id, :first_name, :last_name, :office_level)`, &newUser)
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"Couldn't insert user in the db": err.Error()})
+		return
+	}
+
+	// Convert salt to hexadecimal
+	hexSalt := make([]byte, hex.EncodedLen(len(salt)))
+	hex.Encode(hexSalt, salt)
+
+	newUserAuth.Salt = hexSalt
 	newUserAuth.PasswordHash = hashedPass
 
-	// Insert into DB, start new Tx
-
-	_, err = database.DB.NamedExec(
-		`INSERT INTO users (id, first_name, last_name, office_level)
-		VALUES (:id, :first_name, :last_name, :office_level)`, &newUser)
-
+	// Insert newUserAuth into users_authentication table
+	_, err = tx.NamedExec(`
+						INSERT INTO users_authentication (user_id, email, password_hash, salt)
+						VALUES (:user_id, :email, :password_hash, :salt)`, &newUserAuth)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"Couldn't insert user's authInfo to db": err.Error()})
 		return
 	}
+
+	// Insert into parking_lot_employees if necessary
+	if pl_exists && newUser.Office_Level != "dono" {
+		_, err = tx.Exec(`
+						INSERT INTO parking_lot_employees (user_id, parking_lot_id)
+						VALUES ($1, $2)`, newUser.ID, plID)
+		if err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"Couldn't associate user with parking lot": err.Error()})
+			return
+		}
+	}
+
+	// Commit the transaction
+	if err = tx.Commit(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"Couldn't finish transaction": err.Error()})
+		return
+	}
+
+	// Send success response
 	c.JSON(http.StatusOK, newUser)
 }
 
