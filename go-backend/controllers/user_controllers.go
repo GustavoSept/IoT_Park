@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/hex"
+	"fmt"
 	"net/http"
 
 	"go-backend/database"
@@ -148,7 +149,7 @@ func CreateUser(c *gin.Context) {
 	}
 
 	// Send success response
-	c.JSON(http.StatusOK, newUser)
+	c.JSON(http.StatusOK, fmt.Sprintf("Bazinga! A conta de %s foi criada com sucesso!", newUser.First_Name))
 }
 
 func UpdateUser(c *gin.Context) {
