@@ -9,11 +9,11 @@
           <form hx-post="http://localhost:8080/api/create-user" hx-target="#modal-response" method="post">
             <div class="mb-3">
               <label for="user_f_name" class="form-label">Nome</label>
-              <input type="text" class="form-control" id="firstName" name="user_f_name">
+              <input type="text" class="form-control" id="firstName" name="user_f_name" required>
             </div>
             <div class="mb-3">
               <label for="user_l_name" class="form-label">Sobrenome</label>
-              <input type="text" class="form-control" id="lastName" name="user_l_name">
+              <input type="text" class="form-control" id="lastName" name="user_l_name" required>
             </div>
             <div class="mb-3">
               <label for="u_auth_email" class="form-label">Email</label>
@@ -21,12 +21,11 @@
             </div>            
             <div class="mb-3">
               <label for="raw_password" class="form-label">Senha</label>
-              <input type="password" class="form-control" id="user_password" name="raw_password">
+              <input type="password" class="form-control" id="user_password" name="raw_password" required>
             </div>            
             <div class="mb-3">
               <label for="user_oflvl" class="form-label">Cargo</label>
               <select class="form-control" id="officeLevel" name="user_oflvl" required>
-                <option value="">Choose...</option>
                 <option value="operador">Operador</option>
                 <option value="lavador">Lavador</option>
                 <option value="vendedor">Vendedor</option>
