@@ -93,7 +93,11 @@
 
         {% include 'modals/remove_user_modal.html' %}
 
-        {% include 'modals/remove_parking_lot_modal.html' %}
-
+        {% include 'modals/remove_parking_lot_modal.html' %}        
     </div>
+   
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='scripts/show_modal_alert.js') }}" defer></script>
 {% endblock %}
