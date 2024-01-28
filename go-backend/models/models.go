@@ -33,7 +33,7 @@ func passwordComplexity(fl validator.FieldLevel) bool {
 	numberRegex := regexp.MustCompile(`[0-9]`)
 	upperRegex := regexp.MustCompile(`[A-Z]`)
 	lowerRegex := regexp.MustCompile(`[a-z]`)
-	specialRegex := regexp.MustCompile(`[!@#$%^&*(),.?":{}|<>]`)
+	specialRegex := regexp.MustCompile(`[!@#$%^&*(),.?:{}|_-]`)
 
 	return numberRegex.MatchString(password) &&
 		upperRegex.MatchString(password) &&
