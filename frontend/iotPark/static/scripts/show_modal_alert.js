@@ -17,9 +17,17 @@ function showAlert(message, alertType = 'success') {
     }, 3000);
 }
 
-
-
 document.body.addEventListener('htmx:afterOnLoad', function(event) {
-    var response = event.detail.xhr.response;
-    showAlert(response, 'info'); // 'info', 'success', 'warning', or 'danger'
-});   
+    try {
+        var response = JSON.parse(event.detail.xhr.response);
+
+        if (response.hasOwnProperty('error')) {
+            showAlert(response.error, 'danger');
+        } else {
+            showAlert(response, 'success');
+        }
+    } catch (e) {
+        // In case of parsing error, show a default error message
+        showAlert('An error occurred', 'danger');
+    }
+});
