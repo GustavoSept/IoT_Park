@@ -44,6 +44,7 @@ func GetAllUsersAuth(c *gin.Context) {
 func CreateUser(c *gin.Context) {
 	var newUser models.User
 	var newUserAuth models.User_Auth
+	var password models.Password
 
 	var salt []byte
 	var hashedPass string
@@ -57,7 +58,8 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	rawPassword := c.PostForm("raw_password")
+	password.RawPassword = c.PostForm("raw_password")
+	const lenPass = 8
 
 	// Validate newUser
 	if err := models.Validate.Struct(newUser); err != nil {
@@ -65,6 +67,10 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 	if err := models.Validate.Struct(newUserAuth); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := models.Validate.Struct(password); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -97,7 +103,7 @@ func CreateUser(c *gin.Context) {
 	}
 
 	// Hash Password
-	hashedPass, err = helpers.HashPassword(rawPassword, salt)
+	hashedPass, err = helpers.HashPassword(password.RawPassword, salt)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
