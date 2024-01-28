@@ -15,6 +15,7 @@ func init() {
 
 	// custom validations
 	Validate.RegisterValidation("onlyNames", validation_names)
+	Validate.RegisterValidation("password", passwordComplexity)
 }
 
 // onlyNames custom tag
@@ -24,6 +25,20 @@ func validation_names(fl validator.FieldLevel) bool {
 
 	pattern := `[0-9";\\<>\{\}\[\]\/=]`
 	return !regexp.MustCompile(pattern).MatchString(fl.Field().String())
+}
+
+// password custom tag
+func passwordComplexity(fl validator.FieldLevel) bool {
+	password := fl.Field().String()
+	numberRegex := regexp.MustCompile(`[0-9]`)
+	upperRegex := regexp.MustCompile(`[A-Z]`)
+	lowerRegex := regexp.MustCompile(`[a-z]`)
+	specialRegex := regexp.MustCompile(`[!@#$%^&*(),.?":{}|<>]`)
+
+	return numberRegex.MatchString(password) &&
+		upperRegex.MatchString(password) &&
+		lowerRegex.MatchString(password) &&
+		specialRegex.MatchString(password)
 }
 
 type User struct {
@@ -47,6 +62,10 @@ type ParkingLot struct {
 	AddrNumber int       `db:"addr_number" form:"pl_adnum" validate:"required,numeric,min=0,max=32767"`
 	CEP        string    `db:"cep" form:"pl_cep" validate:"required"`
 	OwnerID    uuid.UUID `db:"owner_id"`
+}
+
+type Password struct {
+	RawPassword string `validate:"required,min=8,password"`
 }
 
 // This struct is a sub-set of User, but when checking only an owner name
