@@ -6,7 +6,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form hx-post="http://localhost:8080/api/create-parking-lot" method="post">
+                <form hx-post="http://localhost:8080/api/create-parking-lot" hx-target="#modal-response" method="post">
                     <div class="mb-3">
                         <label for="pl_name" class="form-label">Nome do Estacionamento</label>
                         <input type="text" class="form-control" id="pl_name" name="pl_name" required>

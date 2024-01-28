@@ -38,24 +38,24 @@ func CreateParkingLot(c *gin.Context) {
 	var owner models.Owner_onlyName
 
 	if err := c.ShouldBind(&newParkingLot); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Couldn't bind parkinglot": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := c.ShouldBind(&owner); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Couldn't bind owner": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	// Validate Data
 
 	if err := models.Validate.Struct(newParkingLot); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Invalid Parking Lot Data": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := models.Validate.Struct(owner); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Invalid Owner Data": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -81,9 +81,9 @@ func CreateParkingLot(c *gin.Context) {
 		`INSERT INTO parking_lots (id, pl_name, addr_street, addr_number, cep, owner_id) `+
 			`VALUES (:id, :pl_name, :addr_street, :addr_number, :cep, :owner_id)`, &newParkingLot)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Couldn't insert into parking_lots": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, newParkingLot)
+	c.JSON(http.StatusOK, "Estacionamento criado com sucesso!")
 }

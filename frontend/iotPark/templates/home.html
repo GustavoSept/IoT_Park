@@ -6,6 +6,7 @@
 
 {% block content %}
     <div class="container mt-4">
+        <div id="modal-response"></div> <!-- Any response from the server (via modal HTMX requests) are sent here -->
         <h2>Tabela Usuários</h2>
         <table class="table table-bordered table-striped">
             <thead>
@@ -29,8 +30,8 @@
         </table>
 
         <div class="mt-3">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">Create User</button>
-            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#removeUserModal">Remove User</button>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">Criar Usuário</button>
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#removeUserModal">Remover Usuário</button>
         </div>
 
         <br>
@@ -83,7 +84,7 @@
         
         <div class="mt-3">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createParkingLotModal">Criar Estacionamento</button>
-            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#removeParkingLotModal">Remover Estacionamentot</button>
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#removeParkingLotModal">Remover Estacionamento</button>
         </div>
 
         {% include 'modals/create_user_modal.html' %}
@@ -92,7 +93,11 @@
 
         {% include 'modals/remove_user_modal.html' %}
 
-        {% include 'modals/remove_parking_lot_modal.html' %}
-
+        {% include 'modals/remove_parking_lot_modal.html' %}        
     </div>
+   
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='scripts/show_modal_alert.js') }}" defer></script>
 {% endblock %}

@@ -6,7 +6,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form hx-post="http://localhost:8080/api/create-user" method="post">
+          <form hx-post="http://localhost:8080/api/create-user" hx-target="#modal-response" method="post">
             <div class="mb-3">
               <label for="user_f_name" class="form-label">Nome</label>
               <input type="text" class="form-control" id="firstName" name="user_f_name">
@@ -37,7 +37,7 @@
 
             <div>
               <h5>Estacionamento Atribuído</h5>
-              <p>Caso seja um funcionário, insira as informações do Estacionamento em irá trabalhar</p>
+              <p>Caso seja um funcionário, insira as informações do Estacionamento em que irá trabalhar</p>
             </div>
             <div class="mb-3">
               <label for="pl_name" class="form-label">Nome do Estacionamento</label>
