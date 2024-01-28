@@ -81,7 +81,7 @@ func CreateParkingLot(c *gin.Context) {
 		`INSERT INTO parking_lots (id, pl_name, addr_street, addr_number, cep, owner_id) `+
 			`VALUES (:id, :pl_name, :addr_street, :addr_number, :cep, :owner_id)`, &newParkingLot)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Couldn't insert into parking_lots": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

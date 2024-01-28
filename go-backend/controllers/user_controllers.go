@@ -99,7 +99,7 @@ func CreateUser(c *gin.Context) {
 	// Hash Password
 	hashedPass, err = helpers.HashPassword(rawPassword, salt)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Couldn't hash password": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -109,7 +109,7 @@ func CreateUser(c *gin.Context) {
 						VALUES (:id, :first_name, :last_name, :office_level)`, &newUser)
 	if err != nil {
 		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"Couldn't insert user in the db": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -126,7 +126,7 @@ func CreateUser(c *gin.Context) {
 						VALUES (:user_id, :email, :password_hash, :salt)`, &newUserAuth)
 	if err != nil {
 		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"Couldn't insert user's authInfo to db": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -137,14 +137,14 @@ func CreateUser(c *gin.Context) {
 						VALUES ($1, $2)`, newUser.ID, plID)
 		if err != nil {
 			tx.Rollback()
-			c.JSON(http.StatusInternalServerError, gin.H{"Couldn't associate user with parking lot": err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 	}
 
 	// Commit the transaction
 	if err = tx.Commit(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Couldn't finish transaction": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
