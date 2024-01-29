@@ -47,3 +47,16 @@ func GetParkingLotContext(c *gin.Context) {
 
 	c.Next()
 }
+
+func AuthRequired(c *gin.Context) {
+	userAuthenticated := false // TODO: implement actual authentication check
+
+	if !userAuthenticated {
+		// If not authenticated, redirect to login page or return an error
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		c.Abort()
+		return
+	}
+
+	c.Next()
+}
