@@ -31,7 +31,7 @@ docker-compose up --build
 
 This command builds and starts the necessary containers for the PostgreSQL database, Go backend, and Flask frontend. After the containers are up and running, the web application should be accessible on `http://0.0.0.0:5000/`
 
-You can send requests directly to the backend via the various endpoints in `http://0.0.0.0:8000/api/`
+You can send requests directly to the backend via the various endpoints in `http://0.0.0.0:8080/api/`
 
 ## Technologies Used:
 
