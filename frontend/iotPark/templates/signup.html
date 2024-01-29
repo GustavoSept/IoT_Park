@@ -1,0 +1,88 @@
+{% extends 'base_bare.html' %}
+
+{% block title %}
+    Sign Up
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-4 d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+        <div class="card p-4" style="width: 400px;">
+            <h1 class="card-title">Criar Usuário</h1>
+            <form hx-post="http://localhost:8080/api/create-user" method="post">
+                <div class="mb-3">
+                    <label for="user_f_name" class="form-label">Nome</label>
+                    <input type="text" class="form-control" id="firstName" name="user_f_name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="user_l_name" class="form-label">Sobrenome</label>
+                    <input type="text" class="form-control" id="lastName" name="user_l_name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="u_auth_email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="uAuthEmail" name="u_auth_email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="raw_password" class="form-label">Senha</label>
+                    <input type="password" class="form-control" id="user_password" name="raw_password" required 
+                        pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?:{}|]).{8,}" 
+                        title="A senha deve conter pelo menos 1 letra minúscula, 1 letra maiúscula, 1 número e 1 caractere especial [!@#$%^&*(),.?:{}|]">
+                    <div id="passwordHelpBlock" class="form-text">
+                        A senha deve conter pelo menos:
+                        <ul id="passwordCriteria">
+                            <li id="lowercase">1 letra minúscula</li>
+                            <li id="uppercase">1 letra maiúscula</li>
+                            <li id="number">1 número</li>
+                            <li id="special">1 caractere especial (!@#$%^&*(),.?:{}|_-)</li>
+                            <li id="minNum">Mínimo de 8 caracteres</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="user_oflvl" class="form-label">Cargo</label>
+                    <select class="form-control" id="officeLevel" name="user_oflvl" required>
+                        <option value="operador">Operador</option>
+                        <option value="lavador">Lavador</option>
+                        <option value="vendedor">Vendedor</option>
+                        <option value="dono">Dono</option>
+                        <option value="gerente">Gerente</option>
+                    </select>
+                </div>
+                <div>
+                    <h5>Estacionamento Atribuído</h5>
+                    <p>Caso seja um funcionário, insira as informações do Estacionamento em que irá trabalhar</p>
+                </div>
+                <div class="mb-3">
+                    <label for="pl_name" class="form-label">Nome do Estacionamento</label>
+                    <input type="text" class="form-control" id="pl_name" name="pl_name">
+                </div>
+                <div class="mb-3">
+                    <label for="pl_adstr" class="form-label">Endereço</label>
+                    <input type="text" class="form-control" id="pl_adstr" name="pl_adstr">
+                </div>
+                <div class="mb-3">
+                    <label for="pl_adnum" class="form-label">Nº</label>
+                    <input type="number" class="form-control" id="pl_adnum" name="pl_adnum">
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('user_password').addEventListener('input', function(e) {
+            var value = e.target.value;
+            var lowercase = /[a-z]/g;
+            var uppercase = /[A-Z]/g;
+            var number = /\d/g;
+            var special = /[!@#$%^&*(),.?":{}|_-]/g;
+            var minLength = 8;
+        
+            document.getElementById('lowercase').style.color = lowercase.test(value) ? 'green' : 'red';
+            document.getElementById('uppercase').style.color = uppercase.test(value) ? 'green' : 'red';
+            document.getElementById('number').style.color = number.test(value) ? 'green' : 'red';
+            document.getElementById('special').style.color = special.test(value) ? 'green' : 'red';
+            document.getElementById('minNum').style.color = value.length >= minLength ? 'green' : 'red';
+        });
+      </script>
+
+{% endblock %}

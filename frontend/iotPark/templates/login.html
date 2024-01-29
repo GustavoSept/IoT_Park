@@ -1,0 +1,30 @@
+{% extends 'base_bare.html' %}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-4 d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+        <div class="card p-4" style="width: 400px;">
+            <h1 class="card-title">Login</h1>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="raw_password" class="form-label">Senha</label>
+                    <input type="password" class="form-control" id="user_password" name="raw_password" required 
+                        pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?:{}|_-]).{8,}">
+                    
+                </div>
+                <button type="submit" class="btn btn-primary">Log In</button>
+            </form>
+            <br>
+            <p class="text-muted" style="font-style: italic;">
+                Email 'adm@admin.com'<br>Password 'Adm1098!'<br>is a pre-registered account.
+            </p>
+        </div>
+    </div>
+{% endblock %}

@@ -5,6 +5,12 @@ import logging
 
 @app.route('/')
 def pg_home():
+
+    isAuthorized = False # TODO: implement JWT check later, do it in a separate function
+
+    if not isAuthorized:
+        return render_template('login.html')
+
     users_url = 'http://go-backend:8080/api/get_all_users'
     usersAuth_url = 'http://go-backend:8080/api/get_all_usersAuth'
     parking_lots_url = 'http://go-backend:8080/api/get_all_pLots'
@@ -23,3 +29,12 @@ def pg_home():
     except requests.exceptions.RequestException as e:
         logging.error(f"Error connecting to backend: {e}")
         return render_template('home.html', users=[], parking_lots=[], users_auth=[])
+    
+@app.route('/login')
+def pg_login():
+    return render_template('login.html')
+
+@app.route('/signup')
+def pg_signup():
+    return render_template('signup.html')
+
