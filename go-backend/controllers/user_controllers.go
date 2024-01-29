@@ -158,6 +158,26 @@ func CreateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, fmt.Sprintf("Bazinga! A conta de %s foi criada com sucesso!", newUser.First_Name))
 }
 
+func LoginUser(c *gin.Context) {
+	inEmail := c.PostForm("input_email")
+	inPassword := c.PostForm("input_password")
+
+	if inEmail == "" || inPassword == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email e Senha são campos obrigatórios"})
+		return
+	}
+
+	if isMatch, err := helpers.MatchLoginDataWithUser(inPassword, inEmail); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	} else if isMatch {
+		c.JSON(http.StatusOK, "") // no need for an alert, it's obvious the login occurred
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Login Inválido"})
+	}
+
+}
+
 func UpdateUser(c *gin.Context) {
 	// Logic to update an User
 	c.JSON(http.StatusOK, gin.H{"message": "PUT request called"})
