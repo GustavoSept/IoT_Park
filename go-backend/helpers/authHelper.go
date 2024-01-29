@@ -64,3 +64,11 @@ func MatchLoginDataWithUser(inPassword, inEmail string) (bool, error) {
 
 	return CheckPassword(inPassword, valUser.PasswordHash, valUser.Salt)
 }
+
+func GenerateCSRFSecret() (string, error) {
+
+}
+
+func CreateToken(userId string, role string) (string, error) {
+
+}

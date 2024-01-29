@@ -2,8 +2,10 @@ package models
 
 import (
 	"regexp"
+	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
@@ -73,6 +75,15 @@ type Owner_onlyName struct {
 	First_Name string `form:"owner_f_name" json:"owner_f_name" validate:"required,onlyNames,max=20"`
 	Last_Name  string `form:"owner_l_name" json:"owner_l_name" validate:"required,onlyNames,max=60"`
 }
+
+type TokenClaims struct {
+	jwt.RegisteredClaims
+	Role string `json:"role"`
+	Csrf string `json:"csrf"`
+}
+
+const RefreshTokenValidTime = time.Hour * 72
+const AuthTokenValidTime = time.Minute * 7
 
 var Users []User
 var UsersAuth []User_Auth
