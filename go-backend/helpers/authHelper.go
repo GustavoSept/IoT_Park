@@ -53,23 +53,40 @@ func CheckPassword(inPassword string, storedHash string, salt []byte) (bool, err
 	return match, nil
 }
 
-func MatchLoginDataWithUser(inPassword, inEmail string) (bool, error) {
-	var valUser models.User_Auth
+func MatchCredentialsWithUser(inPassword, inEmail string) (uuid.UUID, string, error) {
+	// struct is a SuperSet of models.User_Auth + models.User.Office_Level
+	// I've done it this way to request data from the DB only once
+	var valUser struct {
+		UserID       uuid.UUID `db:"user_id"`
+		Email        string    `db:"email"`
+		PasswordHash string    `db:"password_hash"`
+		Salt         []byte    `db:"salt"`
+		Office_Level string    `db:"office_level"`
+	}
 
 	if err := database.DB.Get(&valUser, `
-            SELECT user_id, password_hash, salt
-            FROM users_authentication
-            WHERE email=$1`, inEmail); err != nil {
-		// Log the error for internal tracking
+		SELECT ua.user_id, ua.password_hash, ua.salt, u.office_level
+		FROM users_authentication ua
+		JOIN users u ON ua.user_id = u.user_id
+		WHERE ua.email=$1`, inEmail); err != nil {
+
 		log.Printf("Error fetching user data: %v", err)
-		return false, errors.New("internal server error")
+		return uuid.Nil, "", errors.New("internal server error")
 	}
 
 	if valUser.UserID == uuid.Nil {
-		return false, errors.New("Login Inválido")
+		log.Println("Error fetching user: empty UUID (query returned empty)")
+		return uuid.Nil, "", errors.New("Login Inválido")
 	}
 
-	return CheckPassword(inPassword, valUser.PasswordHash, valUser.Salt)
+	if ok, err := CheckPassword(inPassword, valUser.PasswordHash, valUser.Salt); err != nil {
+		return uuid.Nil, "", err
+	} else if ok {
+		return valUser.UserID, valUser.Office_Level, nil
+	} else {
+		log.Println("Error in CheckPassword(): passwords don't match")
+		return uuid.Nil, "", errors.New("Login Inválido")
+	}
 }
 
 func GenerateCSRFSecret() (string, error) {
