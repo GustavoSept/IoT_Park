@@ -168,28 +168,38 @@ func CreateUser(c *gin.Context) {
 }
 
 func LoginUser(c *gin.Context) {
-	inEmail := c.PostForm("input_email")
-	inPassword := c.PostForm("input_password")
-
-	if inEmail == "" || inPassword == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Email e Senha são campos obrigatórios"})
+	var loginForm struct {
+		inEmail    string `form:"input_email"`
+		inPassword string `form:"input_password"`
+	}
+	if err := c.ShouldBind(&loginForm); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if isMatch, err := helpers.MatchLoginDataWithUser(inPassword, inEmail); err != nil {
+	user_uuid, user_officeLevel, err := helpers.MatchCredentialsWithUser(loginForm.inPassword, loginForm.inEmail)
+
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
-	} else if isMatch {
-		c.JSON(http.StatusOK, "") // no need for an alert, it's obvious the login occurred
 	} else {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Login Inválido"})
+		// Generate and set cookies
+		authTokenString, refreshTokenString, csrfSecret, err := helpers.CreateNewTokens(user_uuid.String(), user_officeLevel)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create tokens"})
+			return
+		}
+		helpers.SetAuthAndRefreshCookies(c, authTokenString, refreshTokenString)
+		c.Header("X-CSRF-Token", csrfSecret)
+
+		c.Status(http.StatusOK)
 	}
 
 }
 
-func UpdateUser(c *gin.Context) {
-	// Logic to update an User
-	c.JSON(http.StatusOK, gin.H{"message": "PUT request called"})
+func LogUserOut(c *gin.Context) {
+	helpers.NullifyTokenCookies(c)
+	c.Redirect(http.StatusFound, "/login")
 }
 
 func DeleteUser(c *gin.Context) {
