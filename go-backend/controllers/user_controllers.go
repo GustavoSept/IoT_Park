@@ -148,13 +148,22 @@ func CreateUser(c *gin.Context) {
 		}
 	}
 
+	// JWT token creation
+	authTokenString, refreshTokenString, csrfSecret, err := helpers.CreateNewTokens(newUser.ID.String(), newUser.Office_Level)
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create tokens"})
+		return
+	}
+	helpers.SetAuthAndRefreshCookies(c, authTokenString, refreshTokenString)
+	c.Header("X-CSRF-Token", csrfSecret)
+
 	// Commit the transaction
 	if err = tx.Commit(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Send success response
 	c.JSON(http.StatusOK, fmt.Sprintf("Bazinga! A conta de %s foi criada com sucesso!", newUser.First_Name))
 }
 
