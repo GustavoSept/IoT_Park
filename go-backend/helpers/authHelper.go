@@ -7,7 +7,9 @@ import (
 	"go-backend/database"
 	"go-backend/models"
 	"log"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/argon2"
 )
@@ -71,9 +73,26 @@ func MatchLoginDataWithUser(inPassword, inEmail string) (bool, error) {
 }
 
 func GenerateCSRFSecret() (string, error) {
-
+	s, err := GenerateSalt(32)
+	return base64.URLEncoding.EncodeToString(s), err
 }
 
 func CreateToken(userId string, role string) (string, error) {
+	claims := models.TokenClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			// Set standard claims like expiry, issuer, subject etc.
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(models.AuthTokenValidTime)),
+			// ... other standard claims
+		},
+		Role: role,
+		Csrf: "some_csrf_token", // Generate a CSRF token as per your requirement
+	}
 
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedToken, err := token.SignedString([]byte("your_secret_key"))
+	if err != nil {
+		return "", err
+	}
+
+	return signedToken, nil
 }
