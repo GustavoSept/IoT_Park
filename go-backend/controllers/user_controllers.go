@@ -203,6 +203,47 @@ func LogUserOut(c *gin.Context) {
 }
 
 func DeleteUser(c *gin.Context) {
-	// Logic to delete an User
-	c.JSON(http.StatusOK, gin.H{"message": "DELETE request called"})
+	// Get and validate AuthToken
+	authToken, err := c.Cookie("AuthToken")
+	if err != nil {
+		helpers.NullifyTokenCookies(c)
+		c.Redirect(http.StatusFound, "/login")
+		return
+	}
+
+	uuid, err := helpers.GrabUUID(authToken)
+	if err != nil {
+		helpers.NullifyTokenCookies(c)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process token"})
+		return
+	}
+
+	// Start transaction
+	tx, err := database.DB.Beginx()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	/* Should CASCADE to the following tables as well:
+	- users_authentication
+	- parking_lot_employees
+	- parking_lots
+	*/
+	_, err = tx.NamedExec("DELETE FROM users WHERE id = $1", uuid)
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	helpers.NullifyTokenCookies(c)
+	c.Redirect(http.StatusFound, "/register")
 }
