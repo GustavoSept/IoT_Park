@@ -3,6 +3,10 @@ package helpers
 import (
 	"crypto/rsa"
 	"errors"
+	"log"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -43,7 +47,7 @@ func updateRefreshTokenExp(oldRefreshTokenString string) (newRefreshTokenString 
 func updateAuthTokenString(refreshTokenString string, oldAuthTokenString string) (newAuthTokenString, csrfSecret string, err error) {
 	return
 }
-func RevokeRefreshToken(refreshTokenString string) error {
+func revokeRefreshToken(refreshTokenString string) error {
 	return errors.New("IMPLEMENT")
 }
 func updateRefreshTokenCsrf(oldRefreshTokenString string, newCsrfString string) (newRefreshTokenString string, err error) {
@@ -51,4 +55,28 @@ func updateRefreshTokenCsrf(oldRefreshTokenString string, newCsrfString string) 
 }
 func GrabUUID(authTokenString string) (string, error) {
 	return "", errors.New("IMPLEMENT")
+}
+
+func SetAuthAndRefreshCookies(c *gin.Context, authTokenString string, refreshTokenString string) {
+	c.SetCookie("AuthToken", authTokenString, 3600, "/", "", false, true)
+	c.SetCookie("RefreshToken", refreshTokenString, 3600, "/", "", false, true)
+}
+
+func NullifyTokenCookies(c *gin.Context) {
+	// Invalidate Tokens locally
+	c.SetCookie("AuthToken", "", -1, "/", "", false, true)
+	c.SetCookie("RefreshToken", "", -1, "/", "", false, true)
+
+	// If present, revoke the refresh token from the database
+	refreshToken, err := c.Cookie("RefreshToken")
+	if err == http.ErrNoCookie {
+		// Do nothing, there is no refresh cookie present
+		return
+	} else if err != nil {
+		log.Panicf("panic: %+v", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	revokeRefreshToken(refreshToken)
 }
