@@ -21,7 +21,7 @@ func GenerateSalt(size int) ([]byte, error) {
 	return salt, nil
 }
 
-// returns password, salt, error
+// returns hash, error
 func HashPassword(password string, salt []byte) (string, error) {
 	hash := argon2.IDKey(
 		[]byte(password), // password
@@ -31,7 +31,12 @@ func HashPassword(password string, salt []byte) (string, error) {
 		4,                // threads
 		32,               // Key Length
 	)
-	return base64.RawStdEncoding.EncodeToString(hash), nil
+	encodedHash := base64.RawStdEncoding.EncodeToString(hash)
+	if encodedHash == "" {
+		return "", errors.New("failed to encode hash")
+	}
+
+	return encodedHash, nil
 }
 
 func CheckPassword(inPassword string, storedHash string, salt []byte) (bool, error) {
