@@ -1,8 +1,11 @@
 package middleware
 
 import (
+	"fmt"
 	"go-backend/database"
+	"go-backend/helpers"
 	"go-backend/models"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -49,17 +52,70 @@ func GetParkingLotContext(c *gin.Context) {
 }
 
 func AuthRequired(c *gin.Context) {
+	/*
+		For unauthorized access, it's the frontend's job to redirect the user to either the login page,
+		or to /api/tokenrefresh endpoint to refresh their AuthToken based on RefreshToken (expiration) validity
+	*/
 
-}
+	// Read cookies
+	authCookie, err := c.Cookie("AuthToken")
+	if err == http.ErrNoCookie {
+		log.Println("Unauthorized attempt! No auth cookie")
+		helpers.NullifyTokenCookies(c)
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	} else if err != nil {
+		log.Panic(fmt.Sprintf("panic: %+v", err))
+		helpers.NullifyTokenCookies(c)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
-func nullifyTokenCookies(c *gin.Context) {
+	refreshCookie, err := c.Cookie("RefreshToken")
+	if err == http.ErrNoCookie {
+		log.Println("Unauthorized attempt! No refresh cookie")
+		helpers.NullifyTokenCookies(c)
+		c.Redirect(http.StatusFound, "/login")
+		return
+	} else if err != nil {
+		log.Panic(fmt.Sprintf("panic: %+v", err))
+		helpers.NullifyTokenCookies(c)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
-}
+	// Grab the CSRF token
+	requestCsrfToken := grabCsrfFromReq(c)
 
-func setAuthAndRefreshCookies(c *gin.Context, authTokenString string, refreshTokenString string) {
+	// Check the JWTs for validity
+	authTokenString, refreshTokenString, csrfSecret, err := helpers.CheckAndRefreshTokens(authCookie, refreshCookie, requestCsrfToken)
+	if err != nil {
+		if err.Error() == "Unauthorized" {
+			log.Println("Unauthorized attempt! JWT's not valid!")
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			return
+		} else {
+			log.Panic(fmt.Sprintf("panic: %+v", err))
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+	}
+	log.Println("Successfully recreated jwts")
 
+	// Set headers and cookies
+	helpers.SetAuthAndRefreshCookies(c, authTokenString, refreshTokenString)
+	c.Writer.Header().Set("X-CSRF-Token", csrfSecret)
+
+	c.Next()
+	return
 }
 
 func grabCsrfFromReq(c *gin.Context) string {
+	csrfToken := c.PostForm("X-CSRF-Token")
 
+	if csrfToken == "" {
+		csrfToken = c.GetHeader("X-CSRF-Token")
+	}
+
+	return csrfToken
 }
