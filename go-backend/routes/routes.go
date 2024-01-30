@@ -28,9 +28,11 @@ func HandleRequest() {
 		authorized.GET("/get_all_pLots", controllers.GetAllParkingLots)
 		authorized.POST("/create-user", middleware.GetParkingLotContext, controllers.CreateUser)
 		authorized.POST("/create-parking-lot", controllers.CreateParkingLot)
+		authorized.POST("/logout", controllers.LogUserOut)
+		authorized.DELETE("/delete-user", controllers.DeleteUser)
 	}
 
-	router.POST("/login", controllers.LoginUser)
+	router.POST("/api/login", controllers.LoginUser)
 
 	// Run the server
 	router.Run(":8080")
