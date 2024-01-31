@@ -288,7 +288,20 @@ func updateRefreshTokenCsrf(oldRefreshTokenString string, newCsrfString string) 
 	return
 }
 func GrabUUID(authTokenString string) (string, error) {
-	return "", errors.New("IMPLEMENT")
+	var authTokenClaims models.TokenClaims
+	authToken, err := jwt.ParseWithClaims(authTokenString, &authTokenClaims, func(token *jwt.Token) (interface{}, error) {
+		return VERIFY_KEY, nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	if !authToken.Valid {
+		return "", errors.New("invalid token")
+	}
+
+	return authTokenClaims.Subject, nil
 }
 
 func SetAuthAndRefreshCookies(c *gin.Context, authTokenString string, refreshTokenString string) {
