@@ -64,9 +64,62 @@ func CreateNewTokens(uuid string, role string) (authTokenString, refreshTokenStr
 }
 
 func CheckAndRefreshTokens(
-	oldAuthTokenString string, oldRefreshTokenString string, oldCsrfSecret string) (
+	oldAuthTokenString, oldRefreshTokenString, oldCsrfSecret string) (
 	newAuthTokenString, newRefreshTokenString, newCsrfSecret string, err error) {
-	return
+
+	if oldCsrfSecret == "" {
+		log.Println("No CSRF token!")
+		return "", "", "", errors.New("Unauthorized")
+	}
+
+	// Parsing the token with claims
+	var authTokenClaims models.TokenClaims
+	authToken, err := jwt.ParseWithClaims(oldAuthTokenString, &authTokenClaims, func(token *jwt.Token) (interface{}, error) {
+		return VERIFY_KEY, nil
+	})
+
+	if err != nil {
+		switch {
+		case errors.Is(err, jwt.ErrTokenMalformed):
+			log.Println("That's not even a token")
+		case errors.Is(err, jwt.ErrTokenSignatureInvalid):
+			log.Println("Invalid signature")
+		case errors.Is(err, jwt.ErrTokenExpired), errors.Is(err, jwt.ErrTokenNotValidYet):
+			log.Println("Timing is everything")
+			newAuthTokenString, newCsrfSecret, err = updateAuthTokenString(oldRefreshTokenString, oldAuthTokenString)
+			if err != nil {
+				return "", "", "", errors.New("Unauthorized")
+			}
+
+			newRefreshTokenString, err = updateRefreshTokenExp(oldRefreshTokenString)
+			if err != nil {
+				return "", "", "", errors.New("Unauthorized")
+			}
+
+			newRefreshTokenString, err = updateRefreshTokenCsrf(newRefreshTokenString, newCsrfSecret)
+			return "", "", "", errors.New("Unauthorized")
+
+		default:
+			log.Println("Couldn't handle this token:", err)
+		}
+		return "", "", "", errors.New("Unauthorized")
+	}
+
+	if oldCsrfSecret != authTokenClaims.Csrf {
+		log.Println("CSRF token doesn't match jwt!")
+		return "", "", "", errors.New("Unauthorized")
+	}
+
+	if authToken.Valid {
+		log.Println("Auth token is valid")
+		newCsrfSecret = authTokenClaims.Csrf
+		newRefreshTokenString, err = updateRefreshTokenExp(oldRefreshTokenString)
+		newAuthTokenString = oldAuthTokenString
+		return newAuthTokenString, newRefreshTokenString, newCsrfSecret, nil
+	}
+
+	log.Println("Auth token is not valid")
+	return "", "", "", errors.New("Unauthorized")
 
 }
 
