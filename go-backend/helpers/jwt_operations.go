@@ -24,7 +24,27 @@ var (
 )
 
 func InitJWT() error {
-	return errors.New("IMPLEMENT!")
+	signBytes, err := os.ReadFile(PRIV_KEY_PATH)
+	if err != nil {
+		return err
+	}
+
+	SIGN_KEY, err = jwt.ParseRSAPrivateKeyFromPEM(signBytes)
+	if err != nil {
+		return err
+	}
+
+	verifyBytes, err := os.ReadFile(PUB_KEY_PATH)
+	if err != nil {
+		return err
+	}
+
+	VERIFY_KEY, err = jwt.ParseRSAPublicKeyFromPEM(verifyBytes)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func CreateNewTokens(uuid string, role string) (authTokenString, refreshTokenString, csrfSecret string, err error) {
