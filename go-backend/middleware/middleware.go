@@ -68,7 +68,7 @@ func AuthRequired(c *gin.Context) {
 	} else if err != nil {
 		log.Panic(fmt.Sprintf("panic: %+v", err))
 		helpers.NullifyTokenCookies(c)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
@@ -81,7 +81,7 @@ func AuthRequired(c *gin.Context) {
 	} else if err != nil {
 		log.Panic(fmt.Sprintf("panic: %+v", err))
 		helpers.NullifyTokenCookies(c)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
@@ -97,7 +97,7 @@ func AuthRequired(c *gin.Context) {
 			return
 		} else {
 			log.Panic(fmt.Sprintf("panic: %+v", err))
-			c.AbortWithStatus(http.StatusInternalServerError)
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 	}
