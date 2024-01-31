@@ -48,6 +48,18 @@ func InitJWT() error {
 }
 
 func CreateNewTokens(uuid string, role string) (authTokenString, refreshTokenString, csrfSecret string, err error) {
+	csrfSecret, err = GenerateCSRFSecret()
+	if err != nil {
+		return
+	}
+
+	refreshTokenString, err = createRefreshTokenString(uuid, role, csrfSecret)
+
+	authTokenString, err = createAuthTokenString(uuid, role, csrfSecret)
+	if err != nil {
+		return
+	}
+
 	return
 }
 
