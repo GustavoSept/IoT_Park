@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
@@ -108,6 +109,42 @@ func AuthRequired(c *gin.Context) {
 
 	c.Next()
 	return
+}
+
+// Restricts user role to be "dono"
+func OnlyOwners(c *gin.Context) {
+	authToken, err := c.Cookie("AuthToken")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "No authentication token provided"})
+			return
+		}
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	// Parse the JWT and extract the claims
+	token, err := jwt.ParseWithClaims(authToken, &models.TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return helpers.VERIFY_KEY, nil
+	})
+
+	if err != nil || !token.Valid {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired authentication token"})
+		return
+	}
+
+	claims, ok := token.Claims.(*models.TokenClaims)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+		return
+	}
+
+	if claims.Role != "dono" {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized access: only owners allowed"})
+		return
+	}
+
+	c.Next()
 }
 
 func grabCsrfFromReq(c *gin.Context) string {

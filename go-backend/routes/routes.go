@@ -24,12 +24,18 @@ func HandleRequest() {
 	authorized.Use(middleware.AuthRequired)
 	{
 		authorized.GET("/get_all_users", controllers.GetAllUsers)
-		authorized.GET("/get_all_usersAuth", controllers.GetAllUsersAuth)
 		authorized.GET("/get_all_pLots", controllers.GetAllParkingLots)
-		authorized.POST("/create-user", middleware.GetParkingLotContext, controllers.CreateUser)
-		authorized.POST("/create-parking-lot", controllers.CreateParkingLot)
 		authorized.POST("/logout", controllers.LogUserOut)
-		authorized.DELETE("/delete-user", controllers.DeleteUser)
+
+		onlyOwners := router.Group("/")
+		onlyOwners.Use(middleware.OnlyOwners)
+		{
+			onlyOwners.GET("/get_all_usersAuth", controllers.GetAllUsersAuth)
+			onlyOwners.POST("/create-user", middleware.GetParkingLotContext, controllers.CreateUser)
+			onlyOwners.POST("/create-parking-lot", controllers.CreateParkingLot)
+			onlyOwners.DELETE("/delete-user", controllers.DeleteUser)
+		}
+
 	}
 
 	router.POST("/api/login", controllers.LoginUser)
