@@ -16,10 +16,17 @@ CREATE TABLE users_authentication (
     user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     email VARCHAR(127) UNIQUE NOT NULL,
     password_hash CHAR(44) NOT NULL,
-    salt CHAR(32) NOT NULL
+    salt CHAR(64) NOT NULL -- 32 bits with hexadecimal encoding
 );
 
 CREATE INDEX idx_email ON users_authentication(email);
+
+-- ---------------------------------------------------
+-- The backend is the one responsible for ensuring that this list only contains valid JWT's
+-- (even if expired, as it's also responsible for deleting expired tokens when it sees them)
+CREATE TABLE jwt_auth (
+    jti CHAR(44) PRIMARY KEY -- JWT ID | 32 bits with base64 encoding
+);
 
 -- ---------------------------------------------------
 

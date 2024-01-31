@@ -142,7 +142,7 @@ func createAuthTokenString(uuid string, role string, csrfSecret string) (authTok
 func createRefreshTokenString(uuid string, role string, csrfString string) (refreshTokenString string, err error) {
 	refreshTokenExp := jwt.NewNumericDate(time.Now().Add(models.RefreshTokenValidTime))
 
-	refreshJti, err := StoreRefreshToken()
+	refreshJti, err := CreateAndStoreRefreshToken()
 	if err != nil {
 		return "", err
 	}
@@ -201,7 +201,11 @@ func updateAuthTokenString(refreshTokenString string, oldAuthTokenString string)
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			log.Println("Refresh token has expired!")
-			DeleteRefreshToken(refreshTokenClaims.ID)
+			if err := DeleteRefreshToken(refreshTokenClaims.ID); err != nil {
+				log.Println("Attempted to delete JWT from db, but an error occurred.")
+				return "", "", errors.New("Unauthorized")
+			}
+
 			return "", "", errors.New("Unauthorized")
 		}
 		return "", "", err
@@ -212,7 +216,7 @@ func updateAuthTokenString(refreshTokenString string, oldAuthTokenString string)
 		return "", "", errors.New("Unauthorized")
 	}
 
-	if CheckRefreshToken(refreshTokenClaims.ID) {
+	if isValidRefreshToken(refreshTokenClaims.ID) {
 		var oldAuthTokenClaims models.TokenClaims
 		authToken, _ := jwt.ParseWithClaims(oldAuthTokenString, &oldAuthTokenClaims, func(token *jwt.Token) (interface{}, error) {
 			return VERIFY_KEY, nil
@@ -252,7 +256,10 @@ func revokeRefreshToken(refreshTokenString string) error {
 		return errors.New("Invalid refresh token")
 	}
 
-	DeleteRefreshToken(refreshTokenClaims.ID)
+	if err := DeleteRefreshToken(refreshTokenClaims.ID); err != nil {
+		log.Println("Attempted to delete JWT from db, but an error occurred.")
+		return errors.New("Unauthorized")
+	}
 
 	return nil
 }
