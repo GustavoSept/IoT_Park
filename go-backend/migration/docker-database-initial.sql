@@ -13,7 +13,7 @@ CREATE INDEX idx_last_name ON users(last_name); -- exclude, if performance becom
 -- ---------------------------------------------------
 
 CREATE TABLE users_authentication (
-    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID PRIMARY KEY REFERENCES users(id),
     email VARCHAR(127) UNIQUE NOT NULL,
     password_hash CHAR(44) NOT NULL,
     salt CHAR(64) NOT NULL -- 32 bits with hexadecimal encoding
@@ -36,7 +36,7 @@ CREATE TABLE parking_lots (
     addr_street VARCHAR(80) NOT NULL,
     addr_number SMALLINT NOT NULL,
     cep CHAR(9) NOT NULL,
-    owner_id UUID REFERENCES users(id) NOT NULL ON DELETE CASCADE,
+    owner_id UUID REFERENCES users(id) NOT NULL,
 
     UNIQUE (pl_name, addr_street, addr_number, owner_id)
 );
@@ -48,13 +48,34 @@ CREATE INDEX idx_cep ON parking_lots(cep);
 
 -- Stores relations of all parking lots to users that are not of type 'dono'
 CREATE TABLE parking_lot_employees (
-    user_id UUID REFERENCES users(id) NOT NULL UNIQUE ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) NOT NULL UNIQUE,
     parking_lot_id UUID REFERENCES parking_lots(id) NOT NULL
 
 );
 
 CREATE INDEX idx_user_id ON parking_lot_employees(user_id);
 CREATE INDEX idx_parkinglot_id ON parking_lot_employees(parking_lot_id);
+
+-- ---------------------------------------------------
+
+----------- ON DELETE CASCADE STATEMENTS -------------
+ALTER TABLE parking_lot_employees
+ADD CONSTRAINT fk_parking_lot_employees_user_id
+FOREIGN KEY (user_id)
+REFERENCES users(id)
+ON DELETE CASCADE;
+
+ALTER TABLE parking_lots
+ADD CONSTRAINT fk_parking_lots_owner_id
+FOREIGN KEY (owner_id)
+REFERENCES users(id)
+ON DELETE CASCADE;
+
+ALTER TABLE users_authentication
+ADD CONSTRAINT fk_users_authentication_user_id
+FOREIGN KEY (user_id)
+REFERENCES users(id)
+ON DELETE CASCADE;
 
 -- ---------------------------------------------------
 CREATE TYPE car_model AS ENUM ('sedã', 'hatch', 'suv', 'cupê', 'conversível', 'picape', 'minivan', 'caminhão');
