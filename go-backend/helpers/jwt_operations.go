@@ -257,6 +257,34 @@ func revokeRefreshToken(refreshTokenString string) error {
 	return nil
 }
 func updateRefreshTokenCsrf(oldRefreshTokenString string, newCsrfString string) (newRefreshTokenString string, err error) {
+	var oldRefreshTokenClaims models.TokenClaims
+	refreshToken, err := jwt.ParseWithClaims(oldRefreshTokenString, &oldRefreshTokenClaims, func(token *jwt.Token) (interface{}, error) {
+		return VERIFY_KEY, nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	if !refreshToken.Valid {
+		return "", errors.New("invalid refresh token")
+	}
+
+	// Creating new claims with the updated CSRF string
+	refreshClaims := models.TokenClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        oldRefreshTokenClaims.RegisteredClaims.ID, // jti
+			Subject:   oldRefreshTokenClaims.RegisteredClaims.Subject,
+			ExpiresAt: oldRefreshTokenClaims.RegisteredClaims.ExpiresAt,
+		},
+		Role: oldRefreshTokenClaims.Role,
+		Csrf: newCsrfString,
+	}
+
+	// Creating new refresh token
+	refreshJwt := jwt.NewWithClaims(jwt.GetSigningMethod("RS256"), refreshClaims)
+
+	// Signing the new refresh token
+	newRefreshTokenString, err = refreshJwt.SignedString(SIGN_KEY)
 	return
 }
 func GrabUUID(authTokenString string) (string, error) {
