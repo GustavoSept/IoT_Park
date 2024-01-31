@@ -169,15 +169,15 @@ func CreateUser(c *gin.Context) {
 
 func LoginUser(c *gin.Context) {
 	var loginForm struct {
-		inEmail    string `form:"input_email"`
-		inPassword string `form:"input_password"`
+		InEmail    string `form:"input_email"`
+		InPassword string `form:"input_password"`
 	}
 	if err := c.ShouldBind(&loginForm); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	user_uuid, user_officeLevel, err := helpers.MatchCredentialsWithUser(loginForm.inPassword, loginForm.inEmail)
+	user_uuid, user_officeLevel, err := helpers.MatchCredentialsWithUser(loginForm.InPassword, loginForm.InEmail)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
