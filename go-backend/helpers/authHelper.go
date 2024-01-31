@@ -64,10 +64,12 @@ func MatchCredentialsWithUser(inPassword, inEmail string) (uuid.UUID, string, er
 		Office_Level string    `db:"office_level"`
 	}
 
+	log.Printf("\ninEmail: %v\ninPassword: %v\n", inEmail, inPassword)
+
 	if err := database.DB.Get(&valUser, `
 		SELECT ua.user_id, ua.password_hash, ua.salt, u.office_level
 		FROM users_authentication ua
-		JOIN users u ON ua.user_id = u.user_id
+		JOIN users u ON ua.user_id = u.id
 		WHERE ua.email=$1`, inEmail); err != nil {
 
 		log.Printf("Error fetching user data: %v", err)
