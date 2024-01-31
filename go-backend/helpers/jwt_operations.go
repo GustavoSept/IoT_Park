@@ -239,7 +239,22 @@ func updateAuthTokenString(refreshTokenString string, oldAuthTokenString string)
 	}
 }
 func revokeRefreshToken(refreshTokenString string) error {
-	return errors.New("IMPLEMENT")
+	var refreshTokenClaims models.TokenClaims
+	refreshToken, err := jwt.ParseWithClaims(refreshTokenString, &refreshTokenClaims, func(token *jwt.Token) (interface{}, error) {
+		return VERIFY_KEY, nil
+	})
+
+	if err != nil {
+		return errors.New("Could not parse refresh token with claims")
+	}
+
+	if !refreshToken.Valid {
+		return errors.New("Invalid refresh token")
+	}
+
+	DeleteRefreshToken(refreshTokenClaims.ID)
+
+	return nil
 }
 func updateRefreshTokenCsrf(oldRefreshTokenString string, newCsrfString string) (newRefreshTokenString string, err error) {
 	return
