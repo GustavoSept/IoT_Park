@@ -27,11 +27,10 @@ func HandleRequest() {
 		authorized.GET("/get_all_pLots", controllers.GetAllParkingLots)
 		authorized.POST("/logout", controllers.LogUserOut)
 
-		onlyOwners := router.Group("/")
+		onlyOwners := router.Group("")
 		onlyOwners.Use(middleware.OnlyOwners)
 		{
 			onlyOwners.GET("/get_all_usersAuth", controllers.GetAllUsersAuth)
-			onlyOwners.POST("/create-user", middleware.GetParkingLotContext, controllers.CreateUser)
 			onlyOwners.POST("/create-parking-lot", controllers.CreateParkingLot)
 			onlyOwners.DELETE("/delete-user", controllers.DeleteUser)
 		}
@@ -39,6 +38,8 @@ func HandleRequest() {
 	}
 
 	router.POST("/api/login", controllers.LoginUser)
+	// Yeah, i know. I should separate 'create user' from 'register user' depending on business logic. But for a demo, it works.
+	router.POST("/api/create-user", middleware.GetParkingLotContext, controllers.CreateUser)
 
 	// Run the server
 	router.Run(":8080")
