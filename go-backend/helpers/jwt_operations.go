@@ -124,6 +124,19 @@ func CheckAndRefreshTokens(
 }
 
 func createAuthTokenString(uuid string, role string, csrfSecret string) (authTokenString string, err error) {
+	authTokenExp := jwt.NewNumericDate(time.Now().Add(models.AuthTokenValidTime))
+	authClaims := models.TokenClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   uuid,
+			ExpiresAt: authTokenExp,
+		},
+		Role: role,
+		Csrf: csrfSecret,
+	}
+
+	authJwt := jwt.NewWithClaims(jwt.SigningMethodRS256, authClaims)
+
+	authTokenString, err = authJwt.SignedString(SIGN_KEY)
 	return
 }
 func createRefreshTokenString(uuid string, role string, csrfString string) (refreshTokenString string, err error) {
