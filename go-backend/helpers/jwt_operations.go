@@ -193,7 +193,50 @@ func updateRefreshTokenExp(oldRefreshTokenString string) (newRefreshTokenString 
 }
 
 func updateAuthTokenString(refreshTokenString string, oldAuthTokenString string) (newAuthTokenString, csrfSecret string, err error) {
-	return
+	var refreshTokenClaims models.TokenClaims
+	refreshToken, err := jwt.ParseWithClaims(refreshTokenString, &refreshTokenClaims, func(token *jwt.Token) (interface{}, error) {
+		return VERIFY_KEY, nil
+	})
+
+	if err != nil {
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			log.Println("Refresh token has expired!")
+			DeleteRefreshToken(refreshTokenClaims.ID)
+			return "", "", errors.New("Unauthorized")
+		}
+		return "", "", err
+	}
+
+	if !refreshToken.Valid {
+		log.Println("Invalid refresh token")
+		return "", "", errors.New("Unauthorized")
+	}
+
+	if CheckRefreshToken(refreshTokenClaims.ID) {
+		var oldAuthTokenClaims models.TokenClaims
+		authToken, _ := jwt.ParseWithClaims(oldAuthTokenString, &oldAuthTokenClaims, func(token *jwt.Token) (interface{}, error) {
+			return VERIFY_KEY, nil
+		})
+
+		if !authToken.Valid {
+			log.Println("Auth token is not valid")
+			return "", "", errors.New("Unauthorized")
+		}
+
+		csrfSecret, err = GenerateCSRFSecret()
+		if err != nil {
+			return
+		}
+
+		newAuthTokenString, err = createAuthTokenString(oldAuthTokenClaims.Subject, oldAuthTokenClaims.Role, csrfSecret)
+
+		return
+	} else {
+		log.Println("Refresh token has been revoked!")
+
+		err = errors.New("Unauthorized")
+		return
+	}
 }
 func revokeRefreshToken(refreshTokenString string) error {
 	return errors.New("IMPLEMENT")
