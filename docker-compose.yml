@@ -20,6 +20,8 @@ services:
       - "8080:8080"
     depends_on:
       - postgres
+    volumes:
+      - ./go-backend/keys:/root/keys:ro # Priv/Pub Keys location
 
   flask-frontend:
     build: ./frontend

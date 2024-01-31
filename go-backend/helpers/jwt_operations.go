@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	PRIV_KEY_PATH = "keys/app.rsa"
-	PUB_KEY_PATH  = "keys/app.rsa.pub"
+	PRIV_KEY_PATH = "/root/keys/app.rsa"
+	PUB_KEY_PATH  = "/root/keys/app.rsa.pub"
 )
 
 var (
@@ -26,22 +26,31 @@ var (
 func InitJWT() error {
 	signBytes, err := os.ReadFile(PRIV_KEY_PATH)
 	if err != nil {
+		log.Println("Error: couldn't open Private Key's file")
 		return err
 	}
 
 	SIGN_KEY, err = jwt.ParseRSAPrivateKeyFromPEM(signBytes)
 	if err != nil {
+		log.Println("Error: didn't load Private Key")
 		return err
 	}
 
 	verifyBytes, err := os.ReadFile(PUB_KEY_PATH)
 	if err != nil {
+		log.Println("Error: couldn't open Public Key's file")
 		return err
 	}
 
 	VERIFY_KEY, err = jwt.ParseRSAPublicKeyFromPEM(verifyBytes)
 	if err != nil {
+		log.Println("Error: didn't load Public Key")
 		return err
+	}
+
+	if SIGN_KEY == nil || VERIFY_KEY == nil {
+		log.Println("Error: Asym keys are not initialized")
+		return errors.New("Asym keys are not initialized")
 	}
 
 	return nil
