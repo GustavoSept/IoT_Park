@@ -3,20 +3,24 @@ package helpers
 import (
 	"crypto/rsa"
 	"errors"
+	"go-backend/models"
 	"log"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 const (
-	privKeyPath = "keys/app.rsa"
-	pubKeyPath  = "keys/app.rsa.pub"
+	PRIV_KEY_PATH = "keys/app.rsa"
+	PUB_KEY_PATH  = "keys/app.rsa.pub"
 )
 
 var (
-	verifyKey *rsa.PublicKey
-	signKey   *rsa.PrivateKey
+	VERIFY_KEY *rsa.PublicKey
+	SIGN_KEY   *rsa.PrivateKey
 )
 
 func InitJWT() error {
