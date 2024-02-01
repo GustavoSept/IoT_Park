@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block content %}
+    <div id="alert-response"></div>
     <div class="container mt-4 d-flex justify-content-center align-items-center" style="min-height: 80vh;">
         <div class="card p-4" style="width: 400px;">
             <h1 class="card-title">Login</h1>
@@ -27,4 +28,46 @@
             </p>
         </div>
     </div>
+
+    <script>
+        console.log("Login script loaded"); // Confirm the script is loading
+    
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            console.log("Form submit event triggered"); // Confirm the event triggers
+            e.preventDefault(); // Prevent the default form submission
+    
+            var formData = new FormData(this);
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = 'http://0.0.0.0:5000/dashboard';
+                } else {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                if (data && data.error) {
+                    console.log("Displaying error alert"); // Confirm error handling
+                    displayAlert(data.error, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                displayAlert('An unexpected error occurred.', 'danger');
+            });
+        });
+    
+        function displayAlert(message, type) {
+            var alertContainer = document.getElementById('alert-response');
+            var alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`;
+            alertContainer.innerHTML = alertHtml;
+        }
+    </script>    
 {% endblock %}
