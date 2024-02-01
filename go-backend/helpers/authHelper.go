@@ -3,6 +3,7 @@ package helpers
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"go-backend/database"
 	"go-backend/models"
@@ -34,6 +35,7 @@ func HashPassword(password string, salt []byte) (string, error) {
 		32,               // Key Length
 	)
 	encodedHash := base64.RawStdEncoding.EncodeToString(hash)
+
 	if encodedHash == "" {
 		return "", errors.New("failed to encode hash")
 	}
@@ -42,13 +44,28 @@ func HashPassword(password string, salt []byte) (string, error) {
 }
 
 func CheckPassword(inPassword string, storedHash string, salt []byte) (bool, error) {
-	hash, err := HashPassword(inPassword, salt)
+
+	decodedSalt, err := hex.DecodeString(string(salt))
+	if err != nil {
+		log.Printf("Error decoding salt: %v", err)
+		return false, errors.New("internal server error")
+	}
+
+	hash, err := HashPassword(inPassword, decodedSalt)
 	if err != nil {
 		return false, err // Error while hashing
 	}
 
 	// Compare the hash of the provided password with the stored hash
 	match := hash == storedHash
+
+	log.Printf(`
+    <<<<<<< This is from CheckPassword(): >>>>>>>>
+
+    newHash: type (%T), value > %v, bytes > %v
+    storedHash: type (%T), value > %v, bytes > %v
+    match: %v
+    `, hash, hash, []byte(hash), storedHash, storedHash, []byte(storedHash), match)
 
 	return match, nil
 }

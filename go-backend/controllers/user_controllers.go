@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/hex"
 	"fmt"
+	"log"
 	"net/http"
 
 	"go-backend/database"
@@ -102,6 +103,9 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
+	log.Println("<<<<<<<<<<<<<<<<<<<< GENERATING NEW USER >>>>>>>>>>>>>>>>>>>>>>>>>>")
+	log.Printf("Generating salt (of type: %T) for user. Salt: %v", salt, salt)
+
 	// Hash Password
 	hashedPass, err = helpers.HashPassword(password.RawPassword, salt)
 	if err != nil {
@@ -122,6 +126,10 @@ func CreateUser(c *gin.Context) {
 	// Convert salt to hexadecimal
 	hexSalt := make([]byte, hex.EncodedLen(len(salt)))
 	hex.Encode(hexSalt, salt)
+
+	log.Printf("User's Raw Password (of type: %T): %v", password.RawPassword, password.RawPassword)
+	log.Printf("Generating user's hashedPass (of type: %T): %v", hashedPass, hashedPass)
+	log.Printf("Storing user's hexSalt (of type: %T): %v", hexSalt, hexSalt)
 
 	newUserAuth.Salt = hexSalt
 	newUserAuth.PasswordHash = hashedPass

@@ -15,8 +15,8 @@ CREATE INDEX idx_last_name ON users(last_name); -- exclude, if performance becom
 CREATE TABLE users_authentication (
     user_id UUID PRIMARY KEY REFERENCES users(id),
     email VARCHAR(127) UNIQUE NOT NULL,
-    password_hash CHAR(44) NOT NULL,
-    salt CHAR(64) NOT NULL -- 32 bits with hexadecimal encoding
+    password_hash VARCHAR(44) NOT NULL, -- the hash can vary from 40 to 44 bytes
+    salt CHAR(32) NOT NULL -- 16 bits with hexadecimal encoding
 );
 
 CREATE INDEX idx_email ON users_authentication(email);

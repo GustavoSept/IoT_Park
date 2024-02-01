@@ -24,15 +24,24 @@ func TestGenerateSalt(t *testing.T) {
 func TestHashPassword(t *testing.T) {
 	password := "testPassword"
 	salt, err := GenerateSalt(local_SALT_SIZE)
-	hash, err := HashPassword(password, salt)
-	fmt.Printf("\nTestHashPassword's Hash: %v\n", hash)
+	hash1_A, err := HashPassword(password, salt)
+	fmt.Printf("\nTestHashPassword's Hash: %v\n", hash1_A)
 	assert.NoError(t, err)
-	assert.NotEmpty(t, hash, "Hash should not be empty")
+	assert.NotEmpty(t, hash1_A, "Hash should not be empty")
 
-	salt, err = GenerateSalt(local_SALT_SIZE)
-	hash2, err := HashPassword(password, salt)
+	salt2, err := GenerateSalt(local_SALT_SIZE)
+	hash2, err := HashPassword(password, salt2)
 	assert.NoError(t, err)
-	assert.NotEqual(t, hash, hash2, "Hashes of the same password should be different")
+	assert.NotEqual(t, hash1_A, hash2, "Hashes of the same password should be different")
+
+	hash1_B, err := HashPassword(password, salt)
+	assert.NoError(t, err)
+	assert.Equal(t, hash1_A, hash1_B, "Hashing the same password, with the same salt multiple times should be equal")
+
+	password2 := "new2@password"
+	hash3, err := HashPassword(password2, salt)
+	assert.NoError(t, err)
+	assert.NotEqual(t, hash1_A, hash3, "Hashing different passwords with the same salt should be different")
 }
 
 func TestCheckPassword(t *testing.T) {
