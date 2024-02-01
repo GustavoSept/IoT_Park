@@ -7,9 +7,10 @@ def has_auth_token():
     return 'AuthToken' in request.cookies and 'RefreshToken' in request.cookies
 
 @app.route('/')
-@app.route('/dashboard')
+@app.route('/dashboard', methods=["GET", "POST"])
 def pg_home():
     if not has_auth_token():
+        logging.warning("User does not have either the AuthToken or RefreshToken")
         return redirect(url_for('pg_login'))
 
     users_url = 'http://go-backend:8080/api/get_all_users'
@@ -20,6 +21,8 @@ def pg_home():
         headers = {
             'Cookie': f'AuthToken={request.cookies["AuthToken"]}; RefreshToken={request.cookies["RefreshToken"]}'
         }
+
+        logging.info(f"Header: {headers}")
 
         users_response = requests.get(users_url, headers=headers)
         usersAuth_response = requests.get(usersAuth_url, headers=headers)
@@ -38,10 +41,10 @@ def pg_home():
         logging.error(f"Error connecting to backend: {e}")
         return render_template('dashboard.html', users=[], parking_lots=[], users_auth=[])
 
-@app.route('/login')
+@app.route('/login', methods=["POST"])
 def pg_login():
     return render_template('login.html')
 
-@app.route('/signup')
+@app.route('/signup', methods=["POST"])
 def pg_signup():
     return render_template('signup.html')
