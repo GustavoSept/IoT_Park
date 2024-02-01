@@ -29,45 +29,54 @@
         </div>
     </div>
 
-    <script>
-        console.log("Login script loaded"); // Confirm the script is loading
-    
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            console.log("Form submit event triggered"); // Confirm the event triggers
-            e.preventDefault(); // Prevent the default form submission
-    
-            var formData = new FormData(this);
-            fetch(this.action, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (response.ok) {
-                    window.location.href = 'http://0.0.0.0:5000/dashboard';
-                } else {
-                    return response.json();
-                }
-            })
-            .then(data => {
-                if (data && data.error) {
-                    console.log("Displaying error alert"); // Confirm error handling
-                    displayAlert(data.error, 'danger');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                displayAlert('An unexpected error occurred.', 'danger');
-            });
-        });
-    
-        function displayAlert(message, type) {
-            var alertContainer = document.getElementById('alert-response');
-            var alertHtml = `
-                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>`;
-            alertContainer.innerHTML = alertHtml;
+<script>
+    console.log("Login script loaded"); // Confirm the script is loading
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // Prevent the default form submission
+
+    var formData = new FormData(this);
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include' // Include credentials for cross-site requests
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json(); // Get the JSON response containing the tokens
+        } else {
+            return response.json().then(data => Promise.reject(data)); // Handle JSON error response
         }
-    </script>    
+    })
+    .then(data => {
+        // Set the tokens as cookies
+        document.cookie = `AuthToken=${data.authToken}; path=/`;
+        document.cookie = `RefreshToken=${data.refreshToken}; path=/`;
+
+        // Redirect to the dashboard
+        window.location.href = '/dashboard';
+    })
+    .catch(data => {
+        // Display an error alert if there is an error message
+        if (data && data.error) {
+            console.log("Displaying error alert"); // Confirm error handling
+            displayAlert(data.error, 'danger');
+        } else {
+            console.error('An unexpected error occurred.');
+            displayAlert('An unexpected error occurred.', 'danger');
+        }
+    });
+    });
+
+    function displayAlert(message, type) {
+        var alertContainer = document.getElementById('alert-response');
+        var alertHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>`;
+        alertContainer.innerHTML = alertHtml;
+    }
+
+</script>    
 {% endblock %}
