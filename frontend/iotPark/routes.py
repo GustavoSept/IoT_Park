@@ -7,6 +7,7 @@ def has_auth_token():
     return 'AuthToken' in request.cookies and 'RefreshToken' in request.cookies
 
 @app.route('/')
+@app.route('/dashboard')
 def pg_home():
     if not has_auth_token():
         return redirect(url_for('pg_login'))
@@ -31,11 +32,11 @@ def pg_home():
         users_auth = usersAuth_response.json() if usersAuth_response.status_code == 200 else []
         parking_lots = parking_lots_response.json() if parking_lots_response.status_code == 200 else []
 
-        return render_template('home.html', users=users, parking_lots=parking_lots, users_auth=users_auth)
+        return render_template('dashboard.html', users=users, parking_lots=parking_lots, users_auth=users_auth)
 
     except requests.exceptions.RequestException as e:
         logging.error(f"Error connecting to backend: {e}")
-        return render_template('home.html', users=[], parking_lots=[], users_auth=[])
+        return render_template('dashboard.html', users=[], parking_lots=[], users_auth=[])
 
 @app.route('/login')
 def pg_login():
