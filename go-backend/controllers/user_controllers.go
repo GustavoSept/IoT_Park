@@ -163,8 +163,6 @@ func CreateUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create tokens"})
 		return
 	}
-	helpers.SetAuthAndRefreshCookies(c, authTokenString, refreshTokenString)
-	c.Header("X-CSRF-Token", csrfSecret)
 
 	// Commit the transaction
 	if err = tx.Commit(); err != nil {
@@ -172,7 +170,12 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fmt.Sprintf("Bazinga! A conta de %s foi criada com sucesso!", newUser.First_Name))
+	c.JSON(http.StatusOK, gin.H{
+		"message":      fmt.Sprintf("Bazinga! A conta de %s foi criada com sucesso!", newUser.First_Name),
+		"authToken":    authTokenString,
+		"refreshToken": refreshTokenString,
+		"csrfSecret":   csrfSecret,
+	})
 }
 
 func LoginUser(c *gin.Context) {
@@ -190,19 +193,27 @@ func LoginUser(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
-	} else {
-		// Generate and set cookies
-		authTokenString, refreshTokenString, csrfSecret, err := helpers.CreateNewTokens(user_uuid.String(), user_officeLevel)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create tokens"})
-			return
-		}
-		helpers.SetAuthAndRefreshCookies(c, authTokenString, refreshTokenString)
-		c.Header("X-CSRF-Token", csrfSecret)
-
-		c.Status(http.StatusOK)
+	}
+	// Generate and set cookies
+	authTokenString, refreshTokenString, csrfSecret, err := helpers.CreateNewTokens(user_uuid.String(), user_officeLevel)
+	log.Printf(`
+		Logged user in!
+		Generating the following cookies:
+		authToken: %v
+		refreshToken: %v
+		csrfSecret: %v
+	`, authTokenString, refreshTokenString, csrfSecret)
+	if err != nil {
+		log.Println("error: Failed to create tokens")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create tokens"})
+		return
 	}
 
+	c.JSON(http.StatusOK, gin.H{
+		"authToken":    authTokenString,
+		"refreshToken": refreshTokenString,
+		"csrfSecret":   csrfSecret,
+	})
 }
 
 func LogUserOut(c *gin.Context) {
